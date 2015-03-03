@@ -187,26 +187,26 @@ class HaxeExternWriter {
 			
 		}
 		
-		for (method in definition.staticMethods) {
-			
-			if (!method.ignore) {
-				
-				methods.push (writeClassMethod (method, true, method.accessModifier));
-				
+		for (key in definition.staticMethods.keys()) {
+			if (!(definition.methods.exists(key))) {
+				var method = definition.methods.get(key);
+				if (!method.ignore) {
+					methods.push (writeClassMethod (method, true, method.accessModifier));
+				}
 			}
-			
 		}
-		
-		for (property in definition.staticProperties) {
-			
-			if (!property.ignore) {
-				
-				properties.push (writeClassProperty (property, true));
-				
+
+		// In order to avoid duplicate definitions, let's take the more liberal one
+		// this could be reversed, obviously.
+		for (key in definition.staticProperties.keys()) {
+			if (!(definition.properties.exists(key))) {
+				var property = definition.staticProperties.get(key);
+				if (!property.ignore) {
+					properties.push (writeClassProperty (property, true));
+				}
 			}
-			
 		}
-		
+
 		imports.sort (BuildHX.alphabeticalSorting);
 		methods.sort (BuildHX.alphabeticalSorting);
 		properties.sort (BuildHX.alphabeticalSorting);
