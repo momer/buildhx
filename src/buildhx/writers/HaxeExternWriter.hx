@@ -146,6 +146,157 @@ class HaxeExternWriter {
 		output.close ();
 		
 	}
+
+	public function writeTypeDef (definition:ClassDefinition, basePath:String):Void {
+		var targetPath = basePath + BuildHX.resolvePackageNameDot (BuildHX.customNamespace + definition.className).split (".").join ("/") + BuildHX.resolveClassName (definition.className) + ".hx";
+		
+		BuildHX.print ("Writing " + targetPath);
+		BuildHX.makeDirectory (targetPath);
+		
+		var imports = new Array<String> ();
+		var methods = new Array<String> ();
+		var properties = new Array<String> ();
+		var staticMethods = new Array<String> ();
+		var staticProperties = new Array<String> ();
+		
+		for (importPath in definition.imports) {
+			
+			imports.push (importPath);
+			
+		}
+		
+		for (method in definition.methods) {
+			
+			if (!method.ignore) {
+				
+				methods.push (writeClassMethod (method, false, method.accessModifier));
+				
+			}
+			
+		}
+		
+		for (property in definition.properties) {
+			
+			if (!property.ignore) {
+				
+				properties.push (writeClassProperty (property, false, property.accessModifier));
+				
+			}
+			
+		}
+		
+		for (key in definition.staticMethods.keys()) {
+			if (!(definition.methods.exists(key))) {
+				var method = definition.methods.get(key);
+				if (!method.ignore) {
+					methods.push (writeClassMethod (method, true, method.accessModifier));
+				}
+			}
+		}
+
+		// In order to avoid duplicate definitions, let's take the more liberal one
+		// this could be reversed, obviously.
+		for (key in definition.staticProperties.keys()) {
+			if (!(definition.properties.exists(key))) {
+				var property = definition.staticProperties.get(key);
+				if (!property.ignore) {
+					properties.push (writeClassProperty (property, true));
+				}
+			}
+		}
+
+		imports.sort (BuildHX.alphabeticalSorting);
+		methods.sort (BuildHX.alphabeticalSorting);
+		properties.sort (BuildHX.alphabeticalSorting);
+		staticMethods.sort (BuildHX.alphabeticalSorting);
+		staticProperties.sort (BuildHX.alphabeticalSorting);
+		
+		var output = File.write (targetPath, false);
+		
+		output.writeString ("package " + BuildHX.resolvePackageName (BuildHX.customNamespace + definition.className) + ";\n\n");
+		
+		for (importPath in imports) {
+			
+			output.writeString ("import " + importPath + ";\n");
+			
+		}
+		
+		if (imports.length > 0) {
+			
+			output.writeString ("\n");
+			
+		}
+		
+		if (definition.comment != null) {
+			output.writeString (definition.comment);
+			output.writeString ("\n");
+		}
+		
+		output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.className + '")\n');
+		output.writeString ('typedef ' + BuildHX.resolveClassName (definition.className));
+		
+		if (definition.returnType != null) {
+			if (definition.typeParams != null) {
+				output.writeString(definition.typeParams);
+			}
+
+			output.writeString(' = ' + definition.returnType + ';\n');
+		} else {
+			output.writeString ("\n{");
+			
+			for (property in staticProperties) {
+				
+				output.writeString ("	" + property);
+				
+			}
+			
+			if (staticProperties.length > 0) {
+				
+				//output.writeString ("\n");
+				
+			}
+			
+			for (property in properties) {
+				
+				output.writeString ("	" + property);
+				
+			}
+			
+			if (properties.length > 0) {
+				
+				//output.writeString ("\n");
+				
+			}
+			
+			for (method in staticMethods) {
+				
+				output.writeString ("	" + method);
+				
+			}
+			
+			if (staticMethods.length > 0) {
+				
+				//output.writeString ("\n");
+				
+			}
+			
+			for (method in methods) {
+				
+				output.writeString ("	" + method);
+				
+			}
+			
+			if (methods.length > 0) {
+				
+				//output.writeString ("\n");
+				
+			}
+			
+			output.writeString ("}\n");
+		}
+
+		output.close ();
+	}
 	
 	
 	public function writeClass (definition:ClassDefinition, basePath:String):Void {
@@ -265,7 +416,7 @@ class HaxeExternWriter {
 			
 			if (interfaces != "") {
 				
-				interfaces += ", ";
+				interfaces += '\n\t';
 				
 			}
 			

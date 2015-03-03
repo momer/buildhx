@@ -412,7 +412,6 @@ class BuildHX {
 		
 		parser.resolveClasses ();
 		parser.writeClasses (targetPath);
-		
 	}
 	
 	
@@ -518,6 +517,55 @@ class BuildHX {
 		
 	}
 	
+	// a lazy integration
+	public static function parseTypeDef (element:Fast):Void {
+		var definition = new ClassDefinition ();
+		
+		definition.isTypeDef = true;
+		definition.className = element.att.name;
+		
+		if (element.has.ignore && element.att.ignore == "true") {
+			
+			definition.ignore = true;
+			
+		}
+		
+		if (element.has.native) {
+			
+			definition.nativeClassName = element.att.native;
+			
+		}
+		
+		if (element.has.typeParams) {
+			definition.typeParams = element.att.typeParams;
+		}
+
+		for (childElement in element.elements) {
+			
+			switch (childElement.name) {
+				
+				case "import":
+					
+					definition.imports.set (childElement.att.name, childElement.att.name);
+				
+				case "property", "static-property":
+					
+					parsePropertyElement (definition, childElement);
+				
+				case "method", "static-method", "constructor":
+					
+					parseMethodElement (definition, childElement);
+				case "return":
+
+					definition.returnType = childElement.att.type;
+				
+			}
+			
+		}
+		
+		definitions.set (definition.className, definition);
+
+	}
 	
 	private static function parseClassElement (element:Fast):Void {
 		
@@ -829,6 +877,15 @@ class BuildHX {
 						types.set (element.att.name, element.att.name);
 						
 					}
+				// A base level typedef
+				case "typedef":
+					if (element.has.remap) {
+						types.set(element.att.name, element.att.remap);
+					} else {
+						types.set(element.att.name, element.att.name);
+					}
+
+					parseTypeDef (element);
 				
 				case "class":
 					

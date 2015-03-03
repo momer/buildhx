@@ -14,6 +14,12 @@ class ClassDefinition {
 	public var imports:Map <String, String>;
 	public var interfaces:Map <String, String>;
 	public var isConfigClass:Bool;
+	// abusing this structure for type definitions
+	// make its own class later on
+	public var isTypeDef:Bool;
+	public var typeParams:String;
+	public var returnType:String;
+	// end typedef abuse
 	public var methods:Map <String, ClassMethod>;
 	public var nativeClassName:String;
 	public var nativeHeader:String;

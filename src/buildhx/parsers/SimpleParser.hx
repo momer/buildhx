@@ -315,7 +315,6 @@ class SimpleParser extends AbstractParser {
 		
 	}
 	
-	
 	public override function writeClasses (targetPath:String):Void {
 		
 		BuildHX.makeDirectory (targetPath);
@@ -329,7 +328,11 @@ class SimpleParser extends AbstractParser {
 					
 					writer.writeConfigClass (definition, targetPath);
 					
-				} else {
+				} else if (definition.isTypeDef) {
+					writer.writeTypeDef (definition, targetPath);
+				
+				}
+				else {
 					
 					writer.writeClass (definition, targetPath);
 					
