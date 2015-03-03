@@ -149,8 +149,9 @@ class HaxeExternWriter {
 
 	public function writeTestFunc (myImports:Array<String>, basePath:String):Void {
 		BuildHX.print("Writing TestFile for Imports.");
+		BuildHX.makeDirectory (basePath);
 
-		var targetPath = basePath + "TestFile" + ".hx";
+		var targetPath = basePath + "/TestFile" + ".hx";
 		var output = File.write (targetPath, false);
 
 		myImports.sort (BuildHX.alphabeticalSorting);
@@ -167,9 +168,9 @@ class HaxeExternWriter {
 
 		// Write a little class to run
 		output.writeString("class TestFile {\n");
-		output.writeString("static public function main():Void {\n");
-		output.writeString("\ttrace('Hello World; test passed.')\n");
-		output.writeString("}\n");
+		output.writeString("\tstatic public function main():Void {\n");
+		output.writeString("\t\ttrace('Hello World; test passed.');\n");
+		output.writeString("\t}\n");
 		output.writeString("}\n");
 
 		output.close ();
