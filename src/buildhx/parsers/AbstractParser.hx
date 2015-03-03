@@ -45,11 +45,14 @@ class AbstractParser {
 		return "";
 		
 	}
-	
+
+	public function allImports():Array<String> {
+		return [];
+	}
+
+	public function writeAllImports(targetPath:String):Void {
+	}
 	
 	public function writeClasses (targetPath:String):Void {
-		
-		
-		
 	}
 }

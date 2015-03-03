@@ -147,6 +147,34 @@ class HaxeExternWriter {
 		
 	}
 
+	public function writeTestFunc (myImports:Array<String>, basePath:String):Void {
+		BuildHX.print("Writing TestFile for Imports.");
+
+		var targetPath = basePath + "TestFile" + ".hx";
+		var output = File.write (targetPath, false);
+
+		myImports.sort (BuildHX.alphabeticalSorting);
+		
+		output.writeString ("package " + "Test" + ";\n\n");
+
+		for (importPath in myImports) {
+			output.writeString ("import " + importPath + ";\n");
+		}
+		
+		if (myImports.length > 0) {
+			output.writeString ("\n");
+		}
+
+		// Write a little class to run
+		output.writeString("class TestFile {\n");
+		output.writeString("static public function main():Void {\n");
+		output.writeString("\ttrace('Hello World; test passed.')\n");
+		output.writeString("}\n");
+		output.writeString("}\n");
+
+		output.close ();
+	}
+
 	public function writeTypeDef (definition:ClassDefinition, basePath:String):Void {
 		var targetPath = basePath + BuildHX.resolvePackageNameDot (BuildHX.customNamespace + definition.className).split (".").join ("/") + BuildHX.resolveClassName (definition.className) + ".hx";
 		

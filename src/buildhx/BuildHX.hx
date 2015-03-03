@@ -412,6 +412,7 @@ class BuildHX {
 		
 		parser.resolveClasses ();
 		parser.writeClasses (targetPath);
+		parser.writeAllImports(targetPath);
 	}
 	
 	

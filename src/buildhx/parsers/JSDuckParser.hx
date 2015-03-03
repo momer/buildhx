@@ -301,7 +301,6 @@ class JSDuckParser extends SimpleParser {
 		
 	}
 	
-	
 	public override function resolveImport (type:String):Array<String> {
 
 		var type = resolveType (type, false);

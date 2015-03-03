@@ -252,7 +252,6 @@ class SimpleParser extends AbstractParser {
 		
 	}
 	
-	
 	public override function resolveImport (type:String):Array<String> {
 
 		var type = resolveType (type, false);
@@ -314,7 +313,30 @@ class SimpleParser extends AbstractParser {
 		return resolvedType;
 		
 	}
-	
+
+	public override function allImports ():Array<String> {
+		var buildImports = new Array <String> ();
+
+		for (definition in definitions) {
+			var myImports = resolveImport(definition.className);
+			for (newImport in myImports) {
+				if (newImport != null && newImport != "" && newImport.substr (-1) != "." && (buildImports.indexOf(newImport) == -1)) {
+					buildImports.push (newImport);
+				}
+			}
+		}
+
+		return buildImports;
+	}
+
+	public override function writeAllImports (targetPath:String):Void {
+		targetPath += "/test";
+		BuildHX.makeDirectory (targetPath);
+		var writer = new HaxeExternWriter (this);
+		
+		writer.writeTestFunc(allImports(), targetPath);
+	}
+
 	public override function writeClasses (targetPath:String):Void {
 		
 		BuildHX.makeDirectory (targetPath);
