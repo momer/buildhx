@@ -306,11 +306,10 @@ class JSDuckParser extends SimpleParser {
 
 		var type = resolveType (type, false);
 
-		if (type.indexOf ("Array<") > -1) {
+		if (type.indexOf ("<") > -1) {
 
 			var indexOfFirstBracket = type.indexOf ("<");
 			type = type.substr (indexOfFirstBracket + 1, type.indexOf (">") - indexOfFirstBracket - 1);
-
 		}
 
 		if (type == "HtmlDom") {
@@ -340,13 +339,21 @@ class JSDuckParser extends SimpleParser {
 			
 		}
 		
-		var isArray = false;
+		var isList = false;
+		var listType = "";
 		
 		if (type.substr (-2) == "[]") {
-			
-			isArray = true;
+			isList = true;
+			listType = "Array";
 			type = type.substr (0, type.length - 2);
 			
+		}
+
+		if (type.indexOf ("<") > -1) {
+			isList = true;
+			var indexOfFirstBracket = type.indexOf ("<");
+			listType = type.substr(0, indexOfFirstBracket);
+			type = type.substr (indexOfFirstBracket + 1, type.indexOf (">") - indexOfFirstBracket - 1);
 		}
 		
 		var resolvedType:String = "";
@@ -372,10 +379,8 @@ class JSDuckParser extends SimpleParser {
 			}
 			
 		}
-		
-		if (isArray) {
-			
-			return "Array<" + resolvedType + ">";
+		if (isList) {
+			return '${listType}<${resolvedType}>';
 			
 		} else {
 			

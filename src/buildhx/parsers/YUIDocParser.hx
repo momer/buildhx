@@ -338,7 +338,7 @@ class YUIDocParser extends SimpleParser
 
 		var type = resolveType (type, false);
 
-		if (type.indexOf ("Array<") > -1) {
+		if (type.indexOf ("<") > -1) {
 
 			var indexOfFirstBracket = type.indexOf ("<");
 			type = type.substr (indexOfFirstBracket + 1, type.indexOf (">") - indexOfFirstBracket - 1);
