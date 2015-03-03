@@ -19,6 +19,7 @@ class ClassDefinition {
 	public var isTypeDef:Bool;
 	public var typeParams:String;
 	public var returnType:String;
+	public var isGeneric:Bool;
 	// end typedef abuse
 	public var methods:Map <String, ClassMethod>;
 	public var nativeClassName:String;

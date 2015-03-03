@@ -535,6 +535,10 @@ class BuildHX {
 			definition.nativeClassName = element.att.native;
 			
 		}
+
+		if (element.has.generic) {
+			definition.isGeneric = true;
+		}
 		
 		if (element.has.typeParams) {
 			definition.typeParams = element.att.typeParams;

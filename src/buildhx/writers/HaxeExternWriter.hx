@@ -233,6 +233,9 @@ class HaxeExternWriter {
 		}
 		
 		output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.className + '")\n');
+		if (definition.isGeneric) {
+			output.writeString('@:generic\n');
+		}
 		output.writeString ('typedef ' + BuildHX.resolveClassName (definition.className));
 		
 		if (definition.returnType != null) {
