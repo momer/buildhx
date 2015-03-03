@@ -330,7 +330,7 @@ class SimpleParser extends AbstractParser {
 	}
 
 	public override function writeAllImports (targetPath:String):Void {
-		targetPath += "/test";
+		targetPath += "test";
 		BuildHX.makeDirectory (targetPath);
 		var writer = new HaxeExternWriter (this);
 		
