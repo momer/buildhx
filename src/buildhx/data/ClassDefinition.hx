@@ -9,6 +9,7 @@ class ClassDefinition {
 	
 	
 	public var className:String;
+	public var originalClassName:String;
 	public var comment:String;
 	public var ignore:Bool;
 	public var imports:Map <String, String>;

@@ -149,9 +149,9 @@ class HaxeExternWriter {
 
 	public function writeTestFunc (myImports:Array<String>, basePath:String):Void {
 		BuildHX.print("Writing TestFile for Imports.");
-		BuildHX.makeDirectory (basePath);
 
 		var targetPath = basePath + "/TestFile" + ".hx";
+		BuildHX.makeDirectory (targetPath);
 		var output = File.write (targetPath, false);
 
 		myImports.sort (BuildHX.alphabeticalSorting);
@@ -261,7 +261,14 @@ class HaxeExternWriter {
 			output.writeString ("\n");
 		}
 		
-		output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.className + '")\n');
+		// To retain the native bindings when a class name starts with a number (invalid Haxe)
+		// ugly method, but it's better than ternary
+		if (definition.originalClassName != null) {
+			output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.originalClassName + '")\n');
+		} else {
+			output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.className + '")\n');
+		}
+
 		if (definition.isGeneric) {
 			output.writeString('@:generic\n');
 		}
@@ -418,8 +425,13 @@ class HaxeExternWriter {
 			output.writeString (definition.comment);
 			output.writeString ("\n");
 		}
-		
-		output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.className + '")\n');
+
+		if (definition.originalClassName != null) {
+			output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.originalClassName + '")\n');
+		} else {
+			output.writeString ('@:native("' + BuildHX.nativeNamespace + definition.className + '")\n');
+		}
+
 		output.writeString ('extern class ' + BuildHX.resolveClassName (definition.className));
 		
 		var parentClassName = "";

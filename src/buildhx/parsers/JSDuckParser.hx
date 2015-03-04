@@ -59,12 +59,46 @@ class JSDuckParser extends SimpleParser {
 		
 	}
 	
+	private function parseClassName(originalClassName:String):Map<String, String> {
+		// Wanted to reuse this as class variable, but it looks like that might cause issues
+		// since position etc. is kept on the regex object
+		var validClassRegex = ~/[A-Z]/;
+		var resolvedName = originalClassName.substr(originalClassName.lastIndexOf (".") + 1);
+		var baseName = originalClassName.substr(0,(originalClassName.lastIndexOf (".") + 1));
+		var regexMatch = validClassRegex.match(resolvedName);
+		var newClassName = "";
+		var finalClassNames = new Map<String, String> ();
+
+		finalClassNames.set("original", originalClassName);
+
+        	if (!regexMatch) {
+			// TODO: determine what to do for completely invalid classes
+        	} else if (validClassRegex.matchedPos().pos > 0) {
+			// push
+			newClassName = resolvedName.substr(validClassRegex.matchedPos().pos) + resolvedName.substr(0,validClassRegex.matchedPos().pos);
+			if (baseName.length > 0 && baseName != newClassName) {
+				newClassName = (baseName + newClassName);
+			}
+			
+			finalClassNames.set("updated", newClassName);			
+		} else {
+			finalClassNames.set("updated", originalClassName);
+		}
+
+		return finalClassNames;
+	}
 	
 	private function getClassInfo (data:Dynamic, definition:ClassDefinition):Void {
-		
 		definition.className = data.name;
+
+		var parsedClassNames = parseClassName(definition.className);
+
+		if (parsedClassNames["original"] != parsedClassNames["updated"]) {
+			definition.originalClassName = parsedClassNames["original"];
+			data.name = definition.className = parsedClassNames["updated"];
+		}
+			 
 		definition.parentClassName = Reflect.field (data, "extends");
-		
 	}
 	
 	
@@ -176,7 +210,8 @@ class JSDuckParser extends SimpleParser {
 				} else {
 					
 					method.name = methodData.name;
-					method.returnType = Reflect.field (methodData, "return").type;
+					var parsedTypeName = parseClassName(Reflect.field (methodData, "return").type);
+					method.returnType = parsedTypeName["updated"];
 					
 				}
 				
@@ -184,9 +219,14 @@ class JSDuckParser extends SimpleParser {
 				
 				for (param in cast (methodData.params, Array<Dynamic>)) {
 					
+					switch (param.name) {
+						case "default":
+							param.name = "_default";
+					}
 					method.parameterNames.push (param.name);
 					method.parameterOptional.push (param.optional);
-					method.parameterTypes.push (param.type);
+					var parsedTypeName = parseClassName(param.type);
+					method.parameterTypes.push (parsedTypeName["updated"]);
 					
 				}
 				
@@ -212,8 +252,9 @@ class JSDuckParser extends SimpleParser {
 				var property = new ClassProperty ();
 				property.name = propertyData.name;
 				property.owner = propertyData.owner;
-				property.type = propertyData.type;
-				
+				var parsedTypeName = parseClassName(propertyData.type);
+				property.type = parsedTypeName["updated"];
+
 				if (!properties.exists (property.name)) {
 					
 					properties.set (property.name, property);

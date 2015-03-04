@@ -496,7 +496,6 @@ class BuildHX {
 				}
 				
 				total += part;
-				
 				if (!FileSystem.exists (total)) {
 					
 					print ("Creating directory " + total, true);
@@ -943,7 +942,6 @@ class BuildHX {
 	
 	
 	public static function resolveClassName (content:String):String {
-		
 		var className = content.substr (content.lastIndexOf (".") + 1);
 		return className.substr (0, 1).toUpperCase () + className.substr (1);
 		
