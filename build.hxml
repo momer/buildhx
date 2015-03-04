@@ -1,3 +1,4 @@
 -cp src
 -main buildhx.BuildHX
+-lib de.polygonal.ds
 -neko run.n

@@ -20,7 +20,7 @@ class JSDuckParser extends SimpleParser {
 	private var ignoredFiles:Array<String>;
 	
 	
-	public function new (types:Map <String, String>, definitions:Map <String, ClassDefinition>) {
+	public function new (types:Map <String, String>, definitions:Map <String, ClassDefinition>, dependencyGraph:de.polygonal.ds.Graph<ClassDefinition>) {
 		
 		super (types, definitions);
 		
@@ -32,6 +32,12 @@ class JSDuckParser extends SimpleParser {
 			
 			this.definitions = definitions;
 			
+		}
+
+		if (dependencyGraph == null) {
+			this.dependencyGraph = new de.polygonal.ds.Graph<ClassDefinition> ();
+		} else {
+			this.dependencyGraph = dependencyGraph;
 		}
 		
 		ignoredFiles = [ "globals.json" ];
@@ -131,7 +137,7 @@ class JSDuckParser extends SimpleParser {
 			processMethods (cast (data.members.method, Array<Dynamic>), definition.methods);
 			processProperties (cast (data.members.property, Array<Dynamic>), definition.properties);
 			processMethods (cast (data.statics.method, Array<Dynamic>), definition.staticMethods);
-			processProperties (cast (data.members.property, Array<Dynamic>), definition.staticProperties);
+			processProperties (cast (data.statics.property, Array<Dynamic>), definition.staticProperties);
 			
 			if (Reflect.hasField (data.members, "cfg")) {
 				
@@ -150,6 +156,10 @@ class JSDuckParser extends SimpleParser {
 					}
 					
 					processProperties (cast (data.members.cfg, Array<Dynamic>), configDefinition.properties);
+					// Add nodes; build graph after all nodes added.
+					if (dependencyGraph.findNode(configDefinition) == null) {
+						dependencyGraph.addNode(dependencyGraph.createNode(configDefinition));
+					}
 					definitions.set (configDefinition.className, configDefinition);
 					
 				}
@@ -180,6 +190,11 @@ class JSDuckParser extends SimpleParser {
 
 		getClassMembers (data, definition);
 		
+		// Add nodes; build graph after all nodes added.
+		if (dependencyGraph.findNode(definition) == null) {
+			dependencyGraph.addNode(dependencyGraph.createNode(definition));
+		}
+
 		definitions.set (definition.className, definition);
 		
 	}

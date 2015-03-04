@@ -350,6 +350,8 @@ class HaxeExternWriter {
 		var properties = new Array<String> ();
 		var staticMethods = new Array<String> ();
 		var staticProperties = new Array<String> ();
+		// TODO: Collect parents' methods for parser.dependencyGraph
+
 		
 		for (importPath in definition.imports) {
 			

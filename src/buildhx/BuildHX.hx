@@ -15,6 +15,10 @@ import buildhx.parsers.JSDuckParser;
 import buildhx.parsers.SimpleParser;
 import buildhx.parsers.YUIDocParser;
 
+import de.polygonal.ds.Graph;
+import de.polygonal.ds.GraphArc;
+import de.polygonal.ds.GraphNode;
+
 
 class BuildHX {
 	
@@ -39,6 +43,7 @@ class BuildHX {
 	
 	private static var definitions:Map<String, ClassDefinition>;
 	private static var types:Map<String, String>;
+	private static var dependencyGraph:de.polygonal.ds.Graph<ClassDefinition>;
 	
 	public static var VERSION:String = "2.0.2";
 	public static var USAGE:String = "Usage : haxelib run buildhx build.xml";
@@ -352,7 +357,7 @@ class BuildHX {
 			
 			case "jsduck":
 				
-				parser = new JSDuckParser (types, definitions);
+				parser = new JSDuckParser (types, definitions, dependencyGraph);
 				
 			case "yuidoc":
 				
@@ -567,6 +572,7 @@ class BuildHX {
 			
 		}
 		
+		// Don't add typedefs to dependency graph 
 		definitions.set (definition.className, definition);
 
 	}
@@ -644,7 +650,11 @@ class BuildHX {
 			}
 			
 		}
-		
+		// Add nodes; build graph after all nodes added.
+		if (dependencyGraph.findNode(definition) == null) {
+			dependencyGraph.addNode(dependencyGraph.createNode(definition));
+		}
+	
 		definitions.set (definition.className, definition);
 		
 	}
@@ -847,6 +857,7 @@ class BuildHX {
 		
 		types = new Map <String, String> ();
 		definitions = new Map <String, ClassDefinition> ();
+		dependencyGraph = new de.polygonal.ds.Graph<ClassDefinition> ();
 		
 		for (element in xml.elements) {
 			
@@ -946,7 +957,6 @@ class BuildHX {
 		return className.substr (0, 1).toUpperCase () + className.substr (1);
 		
 	}
-	
 	
 	public static function resolvePackageName (content:String):String {
 		

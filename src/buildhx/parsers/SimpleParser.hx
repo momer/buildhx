@@ -13,16 +13,18 @@ import buildhx.writers.HaxeExternWriter;
 class SimpleParser extends AbstractParser {
 	
 	
+	private var dependencyGraph:de.polygonal.ds.Graph<ClassDefinition>;
 	private var definitions:Map <String, ClassDefinition>;
 	private var types:Map <String, String>;
 	
 	
-	public function new (types:Map <String, String>, definitions:Map <String, ClassDefinition>) {
+	public function new (types:Map <String, String>, definitions:Map <String, ClassDefinition>, ?dependencyGraph:de.polygonal.ds.Graph<ClassDefinition>) {
 		
 		super (types, definitions);
 		
 		this.types = types;
 		this.definitions = definitions;
+		this.dependencyGraph = dependencyGraph;
 		
 	}
 	
@@ -121,6 +123,7 @@ class SimpleParser extends AbstractParser {
 	}
 	
 	
+	// Occurs after files parsed; 
 	public override function resolveClasses ():Void {
 		
 		for (definition in definitions) {
