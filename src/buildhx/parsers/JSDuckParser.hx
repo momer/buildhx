@@ -35,10 +35,10 @@ class JSDuckParser extends SimpleParser {
 		
 		ignoredFiles = [ "globals.json" ];
 		
+		Sys.print('types: ${types}');
 		if (types == null) {
 			
 			types = new Map <String, String> ();
-			
 		}
 		
 		types.set ("String", "String");
@@ -410,12 +410,8 @@ class JSDuckParser extends SimpleParser {
 			
 		}
 
-		if (type.indexOf ("<") > -1) {
-			isList = true;
-			var indexOfFirstBracket = type.indexOf ("<");
-			listType = type.substr(0, indexOfFirstBracket);
-			type = type.substr (indexOfFirstBracket + 1, type.indexOf (">") - indexOfFirstBracket - 1);
-		}
+			
+		// La la la, another hackish solution until I have time to refactor; TODO
 		
 		var resolvedType:String = "";
 		
@@ -424,10 +420,16 @@ class JSDuckParser extends SimpleParser {
 			resolvedType = "Dynamic";
 			
 		} else if (types.exists (type)) {
-			
 			resolvedType = types.get (type);
 			
-		} else {
+		} else if (type.indexOf ("<") > -1) {
+			isList = true;
+			var indexOfFirstBracket = type.indexOf ("<");
+			listType = type.substr(0, indexOfFirstBracket);
+			type = type.substr (indexOfFirstBracket + 1, type.indexOf (">") - indexOfFirstBracket - 1);
+		} 
+
+		if (resolvedType == null || resolvedType.length == 0) { 
 			
 			if (abbreviate) {
 				

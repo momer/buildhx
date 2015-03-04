@@ -124,11 +124,14 @@ class SimpleParser extends AbstractParser {
 	public override function resolveClasses ():Void {
 		
 		for (definition in definitions) {
+			if (this.types.exists(definition.className)) {
+				Sys.println ('Warning: "${definition.className} exists as a type. Not defining a class for it.');
+			} else {
+				BuildHX.print ("Resolving " + definition.className);
 			
-			BuildHX.print ("Resolving " + definition.className);
-			
-			resolveClass (definition);
-			resolveConflicts (definition);
+				resolveClass (definition);
+				resolveConflicts (definition);
+			}
 			
 		}
 		

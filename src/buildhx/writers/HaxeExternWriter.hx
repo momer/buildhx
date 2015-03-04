@@ -156,7 +156,7 @@ class HaxeExternWriter {
 
 		myImports.sort (BuildHX.alphabeticalSorting);
 		
-		output.writeString ("package " + "Test" + ";\n\n");
+		output.writeString ("package " + "test" + ";\n\n");
 
 		for (importPath in myImports) {
 			output.writeString ("import " + importPath + ";\n");
