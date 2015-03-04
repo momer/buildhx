@@ -58,31 +58,48 @@ class JSDuckParser extends SimpleParser {
 		this.types = types;
 		
 	}
-	
-	private function parseClassName(originalClassName:String):Map<String, String> {
+
+	// this is ugly as all hell, but it's late and I'm le tired. TODO: Refactor
+	public static function parseClassName(origCN:String):Map<String, String> {
 		// Wanted to reuse this as class variable, but it looks like that might cause issues
 		// since position etc. is kept on the regex object
-		var validClassRegex = ~/[A-Z]/;
-		var resolvedName = originalClassName.substr(originalClassName.lastIndexOf (".") + 1);
-		var baseName = originalClassName.substr(0,(originalClassName.lastIndexOf (".") + 1));
+		var validClassRegex = ~/[a-zA-Z]/;
+		var resolvedName:String;
+		var indexOfFirstBracket:Int;
+		var baseName:String;
+		var listType = false;
+
+		if (origCN.indexOf ("<") > -1) {
+			listType = true;
+			indexOfFirstBracket = origCN.indexOf ("<");
+			resolvedName = origCN.substr (indexOfFirstBracket + 1, origCN.indexOf (">") - indexOfFirstBracket - 1);
+			baseName = origCN.substr(0, indexOfFirstBracket + 1);
+			baseName += resolvedName.substr(0,(resolvedName.lastIndexOf (".") + 1));
+			resolvedName = resolvedName.substr(resolvedName.lastIndexOf (".") + 1);
+		} else {
+			resolvedName = origCN.substr(origCN.lastIndexOf (".") + 1);
+			baseName = origCN.substr(0,(origCN.lastIndexOf (".") + 1));
+		}
+
 		var regexMatch = validClassRegex.match(resolvedName);
 		var newClassName = "";
 		var finalClassNames = new Map<String, String> ();
 
-		finalClassNames.set("original", originalClassName);
-
-        	if (!regexMatch) {
-			// TODO: determine what to do for completely invalid classes
-        	} else if (validClassRegex.matchedPos().pos > 0) {
-			// push
+		finalClassNames.set("original", origCN);
+		if (!regexMatch) {
+		} else if (validClassRegex.matchedPos().pos > 0) {
 			newClassName = resolvedName.substr(validClassRegex.matchedPos().pos) + resolvedName.substr(0,validClassRegex.matchedPos().pos);
+
 			if (baseName.length > 0 && baseName != newClassName) {
 				newClassName = (baseName + newClassName);
+				if (listType) {
+					newClassName += ">";
+				}
 			}
-			
-			finalClassNames.set("updated", newClassName);			
+
+			finalClassNames.set("updated", newClassName);
 		} else {
-			finalClassNames.set("updated", originalClassName);
+			finalClassNames.set("updated", origCN);
 		}
 
 		return finalClassNames;
@@ -210,8 +227,12 @@ class JSDuckParser extends SimpleParser {
 				} else {
 					
 					method.name = methodData.name;
-					var parsedTypeName = parseClassName(Reflect.field (methodData, "return").type);
-					method.returnType = parsedTypeName["updated"];
+					if (Reflect.field (methodData, "return").type != null) {
+						var parsedTypeName = parseClassName(Reflect.field (methodData, "return").type);
+						method.returnType = parsedTypeName["updated"];
+					} else {
+						method.returnType = null;
+					}
 					
 				}
 				
