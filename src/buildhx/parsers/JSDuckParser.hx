@@ -1,6 +1,7 @@
 package buildhx.parsers;
 
 
+import StringTools;
 import buildhx.writers.HaxeExternWriter;
 import sys.io.File;
 import buildhx.data.ClassDefinition;
@@ -118,19 +119,19 @@ class JSDuckParser extends SimpleParser {
 	}
 	
 	
-	private function getClassMembers (data:Dynamic, definition:ClassDefinition, ?parentClassDefinition:ClassDefinition):Void {
+	private function getClassMembers (data:Dynamic, definition:ClassDefinition):Void {
 		
 		if (data.singleton) {
 			
 			processMethods (cast (data.members.method, Array<Dynamic>), definition.staticMethods);
-			processProperties (cast (data.members.property, Array<Dynamic>), definition.staticProperties, parentClassDefinition);
+			processProperties (cast (data.members.property, Array<Dynamic>), definition.staticProperties);
 			
 		} else {
 			
 			processMethods (cast (data.members.method, Array<Dynamic>), definition.methods);
-			processProperties (cast (data.members.property, Array<Dynamic>), definition.properties, parentClassDefinition);
+			processProperties (cast (data.members.property, Array<Dynamic>), definition.properties);
 			processMethods (cast (data.statics.method, Array<Dynamic>), definition.staticMethods);
-			processProperties (cast (data.members.property, Array<Dynamic>), definition.staticProperties, parentClassDefinition);
+			processProperties (cast (data.members.property, Array<Dynamic>), definition.staticProperties);
 			
 			if (Reflect.hasField (data.members, "cfg")) {
 				
@@ -148,7 +149,7 @@ class JSDuckParser extends SimpleParser {
 						
 					}
 					
-					processProperties (cast (data.members.cfg, Array<Dynamic>), configDefinition.properties, parentClassDefinition);
+					processProperties (cast (data.members.cfg, Array<Dynamic>), configDefinition.properties);
 					definitions.set (configDefinition.className, configDefinition);
 					
 				}
@@ -168,7 +169,6 @@ class JSDuckParser extends SimpleParser {
 		var data = BuildHX.parseJSON (content);
 		
 		var definition = definitions.get (data.name);
-		var parentClassDefinition:ClassDefinition = null;
 		
 		if (definition == null) {
 			
@@ -178,11 +178,7 @@ class JSDuckParser extends SimpleParser {
 
 		getClassInfo (data, definition);
 
-		if (definition.parentClassName != null && definition.parentClassName.length > 0) {
-			parentClassDefinition = definitions.get (definition.parentClassName);
-		}		
-
-		getClassMembers (data, definition, parentClassDefinition);
+		getClassMembers (data, definition);
 		
 		definitions.set (definition.className, definition);
 		
@@ -269,7 +265,7 @@ class JSDuckParser extends SimpleParser {
 	}
 	
 	
-	private function processProperties (propertiesData:Array<Dynamic>, properties:Map <String, ClassProperty>, parentClassDefinition:ClassDefinition):Void {
+	private function processProperties (propertiesData:Array<Dynamic>, properties:Map <String, ClassProperty>):Void {
 		for (propertyData in propertiesData) {
 			
 			if (propertyData.deprecated == null) {
@@ -281,8 +277,7 @@ class JSDuckParser extends SimpleParser {
 				property.type = parsedTypeName["updated"];
 
 				// Don't add the property if the parent class has it; this is an error in Haxe.
-				trace(parentClassDefinition);
-				if (!properties.exists (property.name) && (parentClassDefinition == null || !parentClassDefinition.properties.exists(property.name))) {
+				if (!properties.exists (property.name)) {
 					
 					properties.set (property.name, property);
 					
@@ -425,7 +420,10 @@ class JSDuckParser extends SimpleParser {
 			
 			resolvedType = "Dynamic";
 			
-		} else if (types.exists (type)) {
+		} else if (StringTools.startsWith(type, "Dictionary")) {
+			resolvedType = "Dynamic";
+		}	
+		else if (types.exists (type)) {
 			resolvedType = types.get (type);
 			
 		} else if (type.indexOf ("<") > -1) {
