@@ -133,7 +133,7 @@ class JSDuckParser extends SimpleParser {
 			processProperties (cast (data.members.property, Array<Dynamic>), definition.staticProperties);
 			
 		} else {
-			
+
 			processMethods (cast (data.members.method, Array<Dynamic>), definition.methods);
 			processProperties (cast (data.members.property, Array<Dynamic>), definition.properties);
 			processMethods (cast (data.statics.method, Array<Dynamic>), definition.staticMethods);
@@ -143,7 +143,7 @@ class JSDuckParser extends SimpleParser {
 				
 				var configProperties = cast (data.members.cfg, Array<Dynamic>);
 				
-				if (configProperties.length > 0 || cast (data.subclasses, Array<Dynamic>).length > 0) {
+				if (configProperties.length > 0) {
 					
 					var configDefinition = new ClassDefinition ();
 					configDefinition.isConfigClass = true;

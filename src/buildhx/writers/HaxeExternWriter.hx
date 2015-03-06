@@ -381,7 +381,8 @@ class HaxeExternWriter {
 		
 		for (key in definition.staticMethods.keys()) {
 			if (!(definition.methods.exists(key))) {
-				var method = definition.methods.get(key);
+				var method = definition.staticMethods.get(key);
+
 				if (!method.ignore) {
 					methods.push (writeClassMethod (method, true, method.accessModifier));
 				}
