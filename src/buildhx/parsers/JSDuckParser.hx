@@ -306,8 +306,14 @@ class JSDuckParser extends SimpleParser {
 	
 	
 	private override function resolveClass (definition:ClassDefinition):Void {
-		
-		BuildHX.addImport (resolveImport (definition.parentClassName), definition);
+		var pClass:ClassDefinition; 
+		if (definition.parentClassName != null) {
+			pClass = definitions.get(definition.parentClassName);
+			if (pClass != null && !pClass.ignore) {
+				BuildHX.addImport (resolveImport (definition.parentClassName), definition);
+			}
+		}
+
 		
 		for (method in definition.methods) {
 			

@@ -355,6 +355,7 @@ class HaxeExternWriter {
 		
 		for (importPath in definition.imports) {
 			
+
 			imports.push (importPath);
 			
 		}

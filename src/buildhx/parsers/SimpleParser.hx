@@ -131,9 +131,12 @@ class SimpleParser extends AbstractParser {
 				Sys.println ('Warning: "${definition.className} exists as a type. Not defining a class for it.');
 			} else {
 				BuildHX.print ("Resolving " + definition.className);
+
+				if (!definition.ignore) {
 			
-				resolveClass (definition);
-				resolveConflicts (definition);
+					resolveClass (definition);
+					resolveConflicts (definition);
+				}
 			}
 			
 		}

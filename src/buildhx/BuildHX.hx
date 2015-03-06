@@ -392,7 +392,7 @@ class BuildHX {
 				
 				runCommand ("", buildhx + "/bin/jsduck-3.10.1.exe", [ sourcePath, "--export=full", "--output", "obj", "--pretty-json" ]);
 				
-			} else {
+			} else if (!FileSystem.exists("./obj")) {
 				
 				runCommand ("", buildhx + "/bin/jsduck", [ sourcePath, "--export=full", "--output", "obj", "--pretty-json" ]);
 				
